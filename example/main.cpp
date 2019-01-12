@@ -4,19 +4,21 @@
 namespace {
 void output_input_source(TISInputSourceRef input_source) {
   if (input_source) {
-    if (auto input_source_id = pqrs::osx::input_source::make_input_source_id(input_source)) {
+    pqrs::osx::input_source::properties properties(input_source);
+
+    if (auto& input_source_id = properties.get_input_source_id()) {
       std::cout << "  input_source_id: " << *input_source_id << std::endl;
     }
 
-    if (auto localized_name = pqrs::osx::input_source::make_localized_name(input_source)) {
+    if (auto& localized_name = properties.get_localized_name()) {
       std::cout << "  localized_name: " << *localized_name << std::endl;
     }
 
-    if (auto input_mode_id = pqrs::osx::input_source::make_input_mode_id(input_source)) {
+    if (auto& input_mode_id = properties.get_input_mode_id()) {
       std::cout << "  input_mode_id: " << *input_mode_id << std::endl;
     }
 
-    auto languages = pqrs::osx::input_source::make_languages(input_source);
+    auto& languages = properties.get_languages();
     if (!languages.empty()) {
       std::cout << "  language:";
       for (const auto& l : languages) {
@@ -25,7 +27,7 @@ void output_input_source(TISInputSourceRef input_source) {
       std::cout << std::endl;
     }
 
-    if (auto first_language = pqrs::osx::input_source::make_first_language(input_source)) {
+    if (auto& first_language = properties.get_first_language()) {
       std::cout << "  first_language: " << *first_language << std::endl;
     }
   }
