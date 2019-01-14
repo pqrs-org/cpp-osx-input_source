@@ -60,6 +60,14 @@ inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input
   return result;
 }
 
+inline void select(TISInputSourceRef input_source) {
+  if (input_source) {
+    pqrs::gcd::dispatch_sync_on_main_queue(^{
+      TISSelectInputSource(input_source);
+    });
+  }
+}
+
 inline std::optional<std::string> make_property_string(TISInputSourceRef input_source,
                                                        CFStringRef key) {
   if (input_source) {
