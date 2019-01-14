@@ -9,16 +9,22 @@
 #include <pqrs/cf/array.hpp>
 #include <pqrs/cf/dictionary.hpp>
 #include <pqrs/cf/string.hpp>
+#include <pqrs/gcd.hpp>
 #include <vector>
 
 namespace pqrs {
 namespace osx {
 namespace input_source {
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline cf::cf_ptr<TISInputSourceRef> make_current_keyboard_input_source(void) {
   cf::cf_ptr<TISInputSourceRef> result;
 
-  if (auto input_source = TISCopyCurrentKeyboardInputSource()) {
+  __block TISInputSourceRef input_source = nullptr;
+
+  pqrs::gcd::dispatch_sync_on_main_queue(^{
+    input_source = TISCopyCurrentKeyboardInputSource();
+  });
+
+  if (input_source) {
     result = input_source;
     CFRelease(input_source);
   }
@@ -26,7 +32,6 @@ inline cf::cf_ptr<TISInputSourceRef> make_current_keyboard_input_source(void) {
   return result;
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input_sources(void) {
   std::vector<cf::cf_ptr<TISInputSourceRef>> result;
 
@@ -34,7 +39,13 @@ inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input
     CFDictionarySetValue(*properties, kTISPropertyInputSourceIsSelectCapable, kCFBooleanTrue);
     CFDictionarySetValue(*properties, kTISPropertyInputSourceCategory, kTISCategoryKeyboardInputSource);
 
-    if (auto input_sources = TISCreateInputSourceList(*properties, false)) {
+    __block CFArrayRef input_sources = nullptr;
+
+    pqrs::gcd::dispatch_sync_on_main_queue(^{
+      input_sources = TISCreateInputSourceList(*properties, false);
+    });
+
+    if (input_sources) {
       auto size = CFArrayGetCount(input_sources);
       for (CFIndex i = 0; i < size; ++i) {
         if (auto s = pqrs::cf::get_cf_array_value<TISInputSourceRef>(input_sources, i)) {
@@ -49,45 +60,50 @@ inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input
   return result;
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
+inline std::optional<std::string> make_property_string(TISInputSourceRef input_source,
+                                                       CFStringRef key) {
+  if (input_source) {
+    __block CFStringRef s = nullptr;
+
+    pqrs::gcd::dispatch_sync_on_main_queue(^{
+      s = static_cast<CFStringRef>(TISGetInputSourceProperty(input_source, key));
+    });
+
+    if (s) {
+      return cf::make_string(s);
+    }
+  }
+
+  return std::nullopt;
+}
+
 inline std::optional<std::string> make_input_source_id(TISInputSourceRef input_source) {
-  if (input_source) {
-    if (auto s = static_cast<CFStringRef>(TISGetInputSourceProperty(input_source, kTISPropertyInputSourceID))) {
-      return cf::make_string(s);
-    }
-  }
-
-  return std::nullopt;
+  return make_property_string(input_source,
+                              kTISPropertyInputSourceID);
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline std::optional<std::string> make_localized_name(TISInputSourceRef input_source) {
-  if (input_source) {
-    if (auto s = static_cast<CFStringRef>(TISGetInputSourceProperty(input_source, kTISPropertyLocalizedName))) {
-      return cf::make_string(s);
-    }
-  }
-
-  return std::nullopt;
+  return make_property_string(input_source,
+                              kTISPropertyLocalizedName);
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline std::optional<std::string> make_input_mode_id(TISInputSourceRef input_source) {
-  if (input_source) {
-    if (auto s = static_cast<CFStringRef>(TISGetInputSourceProperty(input_source, kTISPropertyInputModeID))) {
-      return cf::make_string(s);
-    }
-  }
-
-  return std::nullopt;
+  return make_property_string(input_source,
+                              kTISPropertyInputModeID);
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline std::vector<std::string> make_languages(TISInputSourceRef input_source) {
   std::vector<std::string> result;
 
   if (input_source) {
-    if (auto languages = static_cast<CFArrayRef>(TISGetInputSourceProperty(input_source, kTISPropertyInputSourceLanguages))) {
+    __block CFArrayRef languages = nullptr;
+
+    pqrs::gcd::dispatch_sync_on_main_queue(^{
+      languages = static_cast<CFArrayRef>(TISGetInputSourceProperty(input_source,
+                                                                    kTISPropertyInputSourceLanguages));
+    });
+
+    if (languages) {
       auto size = CFArrayGetCount(languages);
       for (CFIndex i = 0; i < size; ++i) {
         if (auto s = cf::get_cf_array_value<CFStringRef>(languages, i)) {
@@ -102,14 +118,10 @@ inline std::vector<std::string> make_languages(TISInputSourceRef input_source) {
   return result;
 }
 
-// You have to call this method in main thread since TIS/TSM requires to be called in main thread.
 inline std::optional<std::string> make_first_language(TISInputSourceRef input_source) {
-  if (input_source) {
-    if (auto languages = static_cast<CFArrayRef>(TISGetInputSourceProperty(input_source, kTISPropertyInputSourceLanguages))) {
-      if (auto s = cf::get_cf_array_value<CFStringRef>(languages, 0)) {
-        return cf::make_string(s);
-      }
-    }
+  auto languages = make_languages(input_source);
+  if (!languages.empty()) {
+    return languages.front();
   }
 
   return std::nullopt;
