@@ -20,7 +20,7 @@ inline cf::cf_ptr<TISInputSourceRef> make_current_keyboard_input_source(void) {
 
   __block TISInputSourceRef input_source = nullptr;
 
-  pqrs::gcd::dispatch_sync_on_main_queue(^{
+  gcd::dispatch_sync_on_main_queue(^{
     input_source = TISCopyCurrentKeyboardInputSource();
   });
 
@@ -35,20 +35,20 @@ inline cf::cf_ptr<TISInputSourceRef> make_current_keyboard_input_source(void) {
 inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input_sources(void) {
   std::vector<cf::cf_ptr<TISInputSourceRef>> result;
 
-  if (auto properties = pqrs::cf::make_cf_mutable_dictionary()) {
+  if (auto properties = cf::make_cf_mutable_dictionary()) {
     CFDictionarySetValue(*properties, kTISPropertyInputSourceIsSelectCapable, kCFBooleanTrue);
     CFDictionarySetValue(*properties, kTISPropertyInputSourceCategory, kTISCategoryKeyboardInputSource);
 
     __block CFArrayRef input_sources = nullptr;
 
-    pqrs::gcd::dispatch_sync_on_main_queue(^{
+    gcd::dispatch_sync_on_main_queue(^{
       input_sources = TISCreateInputSourceList(*properties, false);
     });
 
     if (input_sources) {
       auto size = CFArrayGetCount(input_sources);
       for (CFIndex i = 0; i < size; ++i) {
-        if (auto s = pqrs::cf::get_cf_array_value<TISInputSourceRef>(input_sources, i)) {
+        if (auto s = cf::get_cf_array_value<TISInputSourceRef>(input_sources, i)) {
           result.emplace_back(s);
         }
       }
@@ -62,7 +62,7 @@ inline std::vector<cf::cf_ptr<TISInputSourceRef>> make_selectable_keyboard_input
 
 inline void select(TISInputSourceRef input_source) {
   if (input_source) {
-    pqrs::gcd::dispatch_sync_on_main_queue(^{
+    gcd::dispatch_sync_on_main_queue(^{
       TISSelectInputSource(input_source);
     });
   }
@@ -73,7 +73,7 @@ inline std::optional<std::string> make_property_string(TISInputSourceRef input_s
   if (input_source) {
     __block CFStringRef s = nullptr;
 
-    pqrs::gcd::dispatch_sync_on_main_queue(^{
+    gcd::dispatch_sync_on_main_queue(^{
       s = static_cast<CFStringRef>(TISGetInputSourceProperty(input_source, key));
     });
 
@@ -106,7 +106,7 @@ inline std::vector<std::string> make_languages(TISInputSourceRef input_source) {
   if (input_source) {
     __block CFArrayRef languages = nullptr;
 
-    pqrs::gcd::dispatch_sync_on_main_queue(^{
+    gcd::dispatch_sync_on_main_queue(^{
       languages = static_cast<CFArrayRef>(TISGetInputSourceProperty(input_source,
                                                                     kTISPropertyInputSourceLanguages));
     });
