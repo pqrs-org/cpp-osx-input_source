@@ -13,6 +13,7 @@ cpp-osx-input_source depends the following classes.
 - [pqrs::cf::dictionary](https://github.com/pqrs-org/cpp-cf-dictionary).
 - [pqrs::cf::string](https://github.com/pqrs-org/cpp-cf-string).
 - [pqrs::gcd](https://github.com/pqrs-org/cpp-gcd).
+- [pqrs::hash](https://github.com/pqrs-org/cpp-hash).
 
 ## Install
 
