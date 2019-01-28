@@ -9,5 +9,5 @@ TEST_CASE("boost_properties") {
 
   pqrs::osx::input_source::properties p2;
 
-  REQUIRE(boost::hash_value(p1) != boost::hash_value(p2));
+  REQUIRE(pqrs::osx::input_source::hash_value(p1) != pqrs::osx::input_source::hash_value(p2));
 }
