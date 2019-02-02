@@ -4,10 +4,11 @@
 #include <pqrs/osx/input_source/extra/boost.hpp>
 
 TEST_CASE("boost_properties") {
-  pqrs::osx::input_source::properties p1;
-  p1.set_input_source_id("com.apple.keylayout.US");
+  {
+    pqrs::osx::input_source::properties p;
+    p.set_input_source_id("com.apple.keylayout.US");
 
-  pqrs::osx::input_source::properties p2;
-
-  REQUIRE(pqrs::osx::input_source::hash_value(p1) != pqrs::osx::input_source::hash_value(p2));
+    REQUIRE(std::hash<pqrs::osx::input_source::properties>{}(p) ==
+            pqrs::osx::input_source::hash_value(p));
+  }
 }

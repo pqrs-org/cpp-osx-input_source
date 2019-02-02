@@ -86,4 +86,14 @@ TEST_CASE("properties hash") {
     properties.set_input_source_id("com.apple.keylayout.US");
     set.insert(properties);
   }
+
+  {
+    pqrs::osx::input_source::properties p1;
+    p1.set_input_source_id("com.apple.keylayout.US");
+
+    pqrs::osx::input_source::properties p2;
+
+    REQUIRE(std::hash<pqrs::osx::input_source::properties>{}(p1) !=
+            std::hash<pqrs::osx::input_source::properties>{}(p2));
+  }
 }
