@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/pqrs-org/cpp-osx-input_source.svg?branch=master)](https://travis-ci.com/pqrs-org/cpp-osx-input_source)
+[![Build Status](https://github.com/pqrs-org/cpp-osx-input_source/workflows/CI/badge.svg)](https://github.com/pqrs-org/cpp-osx-input_source/actions)
 [![License](https://img.shields.io/badge/license-Boost%20Software%20License-blue.svg)](https://github.com/pqrs-org/cpp-osx-input_source/blob/master/LICENSE.md)
 
 # cpp-osx-input_source
