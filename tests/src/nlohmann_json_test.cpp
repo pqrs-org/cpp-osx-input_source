@@ -156,7 +156,7 @@ TEST_CASE("nlohmann_json_properties") {
         pqrs::json::unmarshal_error);
     REQUIRE_THROWS_WITH(
         json.get<pqrs::osx::input_source::properties>(),
-        "`languages` must be array of strings, but is `[\"en\",\"af\",null]`");
+        "`languages` entry must be string, but is `null`");
   }
 
   // type_error (first_language)
