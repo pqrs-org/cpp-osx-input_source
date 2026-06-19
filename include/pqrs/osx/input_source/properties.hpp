@@ -12,11 +12,12 @@ class properties final {
 public:
   properties() noexcept = default;
 
-  properties(TISInputSourceRef s) : input_source_id_(make_input_source_id(s)),
-                                    localized_name_(make_localized_name(s)),
-                                    input_mode_id_(make_input_mode_id(s)),
-                                    languages_(make_languages(s)),
-                                    first_language_(make_first_language(s)) {
+  properties(TISInputSourceRef s)
+      : input_source_id_(make_input_source_id(s)),
+        localized_name_(make_localized_name(s)),
+        input_mode_id_(make_input_mode_id(s)),
+        languages_(make_languages(s)),
+        first_language_(make_first_language(s)) {
   }
 
   [[nodiscard]] const std::optional<std::string>& get_input_source_id() const noexcept {
