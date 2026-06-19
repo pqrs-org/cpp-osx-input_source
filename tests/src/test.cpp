@@ -4,7 +4,7 @@
 #include <pqrs/osx/input_source.hpp>
 #include <unordered_set>
 
-int main(void) {
+int main() {
   using namespace boost::ut;
   using namespace boost::ut::literals;
 

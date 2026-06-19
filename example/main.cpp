@@ -34,7 +34,7 @@ void output_input_source(TISInputSourceRef input_source) {
 }
 } // namespace
 
-int main(void) {
+int main() {
   if (auto input_source = pqrs::osx::input_source::make_current_keyboard_input_source()) {
     std::cout << "current_keyboard_input_source" << std::endl;
     output_input_source(*input_source);
